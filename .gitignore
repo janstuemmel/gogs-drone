@@ -1,0 +1,9 @@
+repos
+logs
+data
+drone
+
+gogs/*
+!gogs/custom
+gogs/custom/*
+!gogs/custom/conf
