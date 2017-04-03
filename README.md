@@ -10,9 +10,9 @@ version controll and ci on a linux machine
 
 ## Dependencies
 
-* git
-* docker, docker-compose
-* sqlite3
+* git via `apt-get install git` (on debian based machines)
+* [docker][docker_install], [docker-compose][compose_install]
+* sqlite3 `apt-get install sqlite3` (on debian based machines)
 
 ## Install
 
@@ -55,3 +55,6 @@ docker-compose up
 [drone_gogs_ip]: https://discuss.drone.io/t/connecting-gogs-and-drone/81/3
 [drone_setup_gogs]: http://readme.drone.io/admin/setup-gogs/
 [drone_setup]: http://readme.drone.io/admin/installation-guide/
+
+[docker_install]: https://docs.docker.com/engine/installation/
+[compose_install]: https://docs.docker.com/compose/install/
