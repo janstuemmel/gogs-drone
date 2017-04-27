@@ -32,6 +32,10 @@ git clone <repo_url> .
 docker-compose up
 ```
 
+### Plus
+
+Example [Caddyfile](./Caddyfile) proxies to your services. Read [this][js_caddyfile] for setting up [Caddy][caddy].
+
 ## References
 
 ### Docs
@@ -55,6 +59,7 @@ docker-compose up
 [drone_gogs_ip]: https://discuss.drone.io/t/connecting-gogs-and-drone/81/3
 [drone_setup_gogs]: http://readme.drone.io/admin/setup-gogs/
 [drone_setup]: http://readme.drone.io/admin/installation-guide/
-
 [docker_install]: https://docs.docker.com/engine/installation/
 [compose_install]: https://docs.docker.com/compose/install/
+[js_caddyfile]: http://janstuemmel.de/2017/04/03/serving-websites-with-caddy.html
+[caddy]: https://caddyserver.com/
