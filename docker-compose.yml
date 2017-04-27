@@ -9,7 +9,6 @@ services:
       - ./drone:/var/lib/drone/
     restart: always
     environment:
-      - DRONE_OPEN=true
       - DRONE_GOGS=true
       - DRONE_GOGS_URL=http://<hostname>:3000
       - DRONE_SECRET=INSERT_A_SECRET_STRING

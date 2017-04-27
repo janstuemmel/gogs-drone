@@ -27,7 +27,7 @@ git clone <repo_url> .
 
 # goto: <hotname>:3000 and follow instructions
 
-# run drone (on port 3000)
+# run drone (on port 8000)
 # change localhost to your hostname in docker-compose.yml
 docker-compose up
 ```
