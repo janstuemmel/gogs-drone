@@ -29,10 +29,12 @@ git clone <repo_url> .
 
 # run drone (on port 8000)
 # change localhost to your hostname in docker-compose.yml
+# generate a secret via `echo $RANDOM | sha1sum`
+# and replace it with INSERT_A_SECRET_STRING
 docker-compose up
 ```
 
-### Plus
+### Caddy
 
 Example [Caddyfile](./Caddyfile) proxies to your services. Read [this][js_caddyfile] for setting up [Caddy][caddy].
 
