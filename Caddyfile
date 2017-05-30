@@ -1,10 +1,13 @@
 
 # gogs
-git.example.com:443 {
+git.example.com {
   proxy / 127.0.0.1:3000
 }
 
 # drone
-ci.example.com:443 {
-	proxy / 127.0.0.1:8000
+ci.example.com {
+	proxy / 127.0.0.1:8000 {
+    websocket
+    transparent
+  }
 }

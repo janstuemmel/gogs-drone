@@ -2,19 +2,21 @@ version: '2'
 
 services:
   drone-server:
-    image: drone/drone:0.5
+    image: drone/drone:0.7
     ports:
       - 8000:8000
     volumes:
       - ./drone:/var/lib/drone/
     restart: always
     environment:
+      - DRONE_OPEN=true
+      - DRONE_HOST=http://<DRONE-HOSTNAME:PORT>
       - DRONE_GOGS=true
-      - DRONE_GOGS_URL=http://<hostname>:3000
+      - DRONE_GOGS_URL=http://<GOGS-HOSTNAME:PORT>
       - DRONE_SECRET=INSERT_A_SECRET_STRING
 
   drone-agent:
-    image: drone/drone:0.5
+    image: drone/drone:0.7
     command: agent
     restart: always
     depends_on: [ drone-server ]
