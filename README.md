@@ -1,67 +1,131 @@
 # Gogs Drone
 
-version controll and ci on a linux machine
+This repository contains everything you need to deploy a gogs server with the fully functional drone continuous integration platform.
+
+## Introduction
+
+[**Gogs**][gogs] (or the fork [**Gitea**][gitea]) is a webbased git frontend. It's written in [**GO**][go] and compiles to a single small binary you can run everywhere. While **GitHub** or **GitLab** have more features, Gogs is easier to setup and runs very fast, even on small machines like a RasperryPi. Gogs does not have an continuous integration platform like GitLab with GitLabCI, but you can use [**Drone**][drone], it's fully based on [**Docker**][docker], written in Go and very easy to setup.
 
 ## Goals
 
-* gogs runs on bare metall
-* drone executes from and with docker
-* maintainable
+* We will install Gogs **not** as a docker servcie, it should run on bare metall as a **systemd** service, because we want `22` as our default ssh port on our host machine.
+
+* Everything should have nice URLs, not like `http://126.12.21.43:7889`. So we're using [**Caddy**][caddy] to proxy pass our services internally. [**Letsencrypt**][Letsencrypt] certs are generated and updated automatically. You will need a wildcard domain for this, but you can skip corresponding chapters if you have none.
+
+* Drone runs and executes builds from and with Docker.
+
+* Everything should be maintainable, so we're using the `docker-compose` infrastructure.
+
 
 ## Dependencies
 
-* git via `apt-get install git` (on debian based machines)
-* [docker][docker_install], [docker-compose][compose_install]
-* sqlite3 `apt-get install sqlite3` (on debian based machines)
+* **Git** must be installed. On debian-based machines do a `apt-get install git`.
 
-## Install
+* Gogs stores data in a **Sqlite** database. On debian-based machines do a `apt-get install sqlite3`.
+
+* This setup heavily relies on the use of Docker and Compose. Please install both according to their documentation ([Docker][docker_install], [Compose][compose_install]).
+
+
+## Instructions
+
+After this set of instructions we've created:
+
+* two **users**:
+  * `caddy` in `/home/caddy` for the http server
+  * `git` in `/home/git` for Gogs and Git
+* two **systemd services**:
+  * `/etc/systemd/system/gogs.service`
+  * `/etc/systemd/system/caddy.service`
+* one **configuration file**:
+  * `/etc/caddy/Caddyfile`
+
+Log into your server and download or `git clone` this repository.
+
+### Caddy HTTP Server
+
+To have nice URL's and automatic TLS you can use Caddy. If you have no domain or another HTTP Server you can skip this paragraph.
 
 ```sh
-# use sudo if you aren't root
+# install caddy
+curl https://getcaddy.com | bash
+
+# add user caddy and create /home/caddy
+useradd -m caddy
+
+# edit Caddyfile, change to your hostname
+vi Caddyfile
+
+# copy the Caddyfile to /etc/caddy
+sudp cp Caddyfile /etc/caddy
+
+# copy that init file to systemd's services folder
+sudo cp ./caddy.service /etc/systemd/system
+
+# give execution rights
+sudo chmod 664 /etc/systemd/system/caddy.service
+
+# enable and start that service
+systemctl enable caddy.service
+systemctl start caddy.service
+```
+
+### Gogs
+
+```sh
+# add a user and create /home/git
 useradd -m git
-su git
-git clone <repo_url> .
 
-# run gogs (on port 3000)
-(cd gogs && ./gogs web)
+# change to that user
+su git && cd ~
 
-# goto: <hotname>:3000 and follow instructions
+# clone this repo
+git clone https://github.com/janstuemmel/gogs-drone.git .
 
-# run drone (on port 8000)
+# edit hostname twice in gogs/custom/conf/app.ini
+vi gogs/costum/conf/app.ini
+
+# download gogs binary (maybe change link to a newer version)
+wget https://dl.gogs.io/0.11.29/linux_386.tar.gz
+tar -xzf *tar.gz
+rm *tar.gz
+
+# change to your normal user
+exit
+```
+
+After this, the `gogs.service` file must be copied into systemd's `system` directory, after that start the service.
+
+```sh
+sudo cp ./home/git/caddy.service /etc/systemd/system
+sudo chmod 664 /etc/systemd/system/caddy.service
+
+# enable and start that service
+systemctl enable gogs.service
+systemctl start gogs.service
+```
+
+### Drone
+
+Drone will run and execute from Docker. I normally run Docker from my default username, but it's also nice to run it inside a user named docker.
+
+```sh
+cd ~/gogs-drone
+
 # change localhost to your hostname in docker-compose.yml
 # generate a secret via `echo $RANDOM | sha1sum`
 # and replace it with INSERT_A_SECRET_STRING
-docker-compose up
+vi docker-compose.yml
+
+# start image in detached mode
+docker-compose up -d
 ```
 
-### Caddy
-
-Example [Caddyfile](./Caddyfile) proxies to your services. Read [this][js_caddyfile] for setting up [Caddy][caddy].
-
-## References
-
-### Docs
-
-* [Gogs][gogs_gh]
-* [Gogs Config][gogs_config]
-* [Drone setup][drone_setup]: Drone `docker-compose.yml`
-* [Drone setup gogs][drone_setup_gogs]: Drone gogs `docker-compose.yml`
-
-### Troubleshooting
-
-* [Gogs Drone IP][drone_gogs_ip]: Drone resolve ip
-* [Drone behind NAT][drone_nat]
-* [Drone agent][drone_agent_docker]: drone-agent url in `docker-compose.yml`
-
-
-[gogs_gh]: https://github.com/gogits/gogs
-[gogs_config]: https://gogs.io/docs/advanced/configuration_cheat_sheet
-[drone_nat]: https://discuss.drone.io/t/cloning-from-gogs-repository-is-not-working/135
-[drone_agent_docker]: http://discourse.drone.io/t/solved-install-drone-gogs-version-control-system-not-configured/212/2
-[drone_gogs_ip]: https://discuss.drone.io/t/connecting-gogs-and-drone/81/3
-[drone_setup_gogs]: http://readme.drone.io/admin/setup-gogs/
-[drone_setup]: http://readme.drone.io/admin/installation-guide/
+[gogs]: https://gogs.io/
+[gitea]: https://gitea.io/en-US/
+[drone]: https://drone.io/
+[docker]: https://www.docker.com/
+[go]: https://golang.org/
+[caddy]: https://caddyserver.com/
+[letsencrypt]: https://letsencrypt.org/
 [docker_install]: https://docs.docker.com/engine/installation/
 [compose_install]: https://docs.docker.com/compose/install/
-[js_caddyfile]: http://janstuemmel.de/2017/04/03/serving-websites-with-caddy.html
-[caddy]: https://caddyserver.com/
