@@ -10,6 +10,7 @@ services:
     restart: always
     environment:
       - DRONE_OPEN=true
+      # - DRONE_ADMIN=foo # to turn on trusted environments
       - DRONE_HOST=http://<DRONE-HOSTNAME:PORT>
       - DRONE_GOGS=true
       - DRONE_GOGS_URL=http://<GOGS-HOSTNAME:PORT>
@@ -24,4 +25,5 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - DRONE_SERVER=ws://drone-server:8000/ws/broker
+      # - DRONE_SERVER=wss://ci.example.com/ws/broker # for https hostnames
       - DRONE_SECRET=INSERT_A_SECRET_STRING
